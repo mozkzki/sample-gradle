@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class HogeTest {
     @Mock
-    Lib lib;
+    User lib;
 
     @InjectMocks
     Hoge hoge;

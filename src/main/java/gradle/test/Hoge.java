@@ -1,10 +1,10 @@
 package gradle.test;
 
 public class Hoge {
-    private Lib lib;
+    private User lib;
 
     public Hoge() {
-        this.lib = new Lib("hoge");
+        this.lib = new User("hoge");
     }
 
     public String getGreeting() {

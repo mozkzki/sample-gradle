@@ -16,9 +16,9 @@ plugins {
     id 'eclipse'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
-[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+// sourceCompatibility = 11
+// targetCompatibility = 11
+// [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -47,7 +47,16 @@ application {
     mainClassName = 'gradle.test.App'
 }
 
+//文字化け対策
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 test {
     // Use junit platform for unit tests
     useJUnitPlatform()
+
+    testLogging {
+        events 'skipped', 'passed', 'failed'
+    }
 }

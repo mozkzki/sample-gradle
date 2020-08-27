@@ -5,6 +5,7 @@ package gradle.test;
 
 public class App {
     public String getGreeting() {
+        // a
         return "Hello world.";
     }
 
