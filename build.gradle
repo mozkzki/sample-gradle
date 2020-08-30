@@ -6,6 +6,7 @@
  * User Manual available at https://docs.gradle.org/6.6/userguide/tutorial_java_projects.html
  */
 
+
 plugins {
     // Apply the java plugin to add support for Java
     id 'java'
@@ -16,6 +17,8 @@ plugins {
     id 'eclipse'
 }
 
+sourceCompatibility = 1.8
+
 // sourceCompatibility = 11
 // targetCompatibility = 11
 // [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
@@ -23,6 +26,8 @@ plugins {
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
+
+    mavenCentral()
     jcenter()
 }
 
@@ -39,6 +44,17 @@ dependencies {
     // Mockito https://site.mockito.org/
     testImplementation("org.mockito:mockito-core:2.+")
     testImplementation("org.mockito:mockito-junit-jupiter:2.+")
+
+    // AWS SDK
+    // implementation platform('software.amazon.awssdk:bom:2.X.X')
+    // implementation 'com.amazonaws:aws-java-sdk-sqs'
+
+
+    // implementation platform('software.amazon.awssdk:bom:2.X.X')
+    // implementation 'software.amazon.awssdk:kinesis'
+
+    implementation platform('software.amazon.awssdk:bom:2.14.6') 
+    implementation 'software.amazon.awssdk:sqs'
 }
 
 
