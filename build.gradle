@@ -48,17 +48,17 @@ dependencies {
     testImplementation("org.mockito:mockito-core:2.+")
     testImplementation("org.mockito:mockito-junit-jupiter:2.+")
 
-    // AWS SDK
-    // implementation platform('software.amazon.awssdk:bom:2.X.X')
-    // implementation 'com.amazonaws:aws-java-sdk-sqs'
-
-
-    // implementation platform('software.amazon.awssdk:bom:2.X.X')
-    // implementation 'software.amazon.awssdk:kinesis'
-
+    // AWS SDK V2
     implementation platform('software.amazon.awssdk:bom:2.14.6') 
     implementation 'software.amazon.awssdk:sqs'
+    implementation 'software.amazon.awssdk:dynamodb'
 
+    // AWS SDK V1
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.852')
+    implementation 'com.amazonaws:aws-java-sdk-sqs'
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb'
+
+    // Spring
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
