@@ -1,4 +1,4 @@
-package gradle.test;
+package gradle.junit5;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,33 +9,36 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Description;
 
-public class JUnit5Test {
-    // @Test
-    // void fail() {
-    // assertEquals(10, 8);
-    // }
+public class Sample {
 
-    // static class StaticClass {
-    // @Test
-    // void fail() {
-    // assertEquals(10, 8);
-    // }
-    // }
+    @Test
+    @Description("失敗するテスト")
+    void fail() {
+        assertEquals(10, 8);
+    }
 
-    // static class StaticTest {
-    // @Test
-    // void fail() {
-    // assertEquals(10, 8);
-    // }
-    // }
+    static class StaticClass {
+        @Test
+        void fail() {
+            assertEquals(10, 8);
+        }
+    }
 
-    // class InnerTest {
-    // @Test
-    // void fail() {
-    // assertEquals(10, 8);
-    // }
-    // }
+    static class StaticTest {
+        @Test
+        void fail() {
+            assertEquals(10, 8);
+        }
+    }
+
+    class InnerTest {
+        @Test
+        void fail() {
+            assertEquals(10, 8);
+        }
+    }
 
     @BeforeAll
     static void beforeAll() {
@@ -54,6 +57,7 @@ public class JUnit5Test {
     }
 
     @Test
+    @DisplayName("test2のテスト")
     void test2() {
         System.out.println("    test2()");
     }
