@@ -2,11 +2,21 @@ package gradle.test.join;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Index;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
@@ -15,7 +25,6 @@ import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +45,19 @@ public class DynamoClientJoinTest {
     public void setup() throws Exception {
         createClient();
         createTable();
-
-        // 販売テナント論理テーブルのデータ
-        postDistributionTenantData();
+        postPrecipitationData();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
         deleteTable();
+    }
+
+    @Test
+    @DisplayName("Dynamo Clientの結合テスト")
+    public void test() throws Exception {
+        query();
+        System.out.println("--------- hoge");
     }
 
     public void createClient() {
@@ -52,14 +66,29 @@ public class DynamoClientJoinTest {
         client = AmazonDynamoDBClientBuilder.standard()
                 // .withRegion("ap-northeast-1")
                 .withEndpointConfiguration(endpointConfiguration).build();
+
     }
 
     public void createTable() throws Exception {
-        CreateTableRequest request = new CreateTableRequest()
-                .withAttributeDefinitions(new AttributeDefinition("DistTenantId", ScalarAttributeType.S))
-                .withKeySchema(new KeySchemaElement("DistTenantId", KeyType.HASH))
-                .withProvisionedThroughput(new ProvisionedThroughput(new Long(10), new Long(10)))
-                .withTableName(TABLE_NAME);
+        // Attribute definitions
+        ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<AttributeDefinition>();
+
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("MyLocation").withAttributeType("S"));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Date").withAttributeType("S"));
+        // attributeDefinitions.add(new
+        // AttributeDefinition().withAttributeName("Precipitation").withAttributeType("S"));
+
+        // Table key schema
+        ArrayList<KeySchemaElement> tableKeySchema = new ArrayList<KeySchemaElement>();
+        // Partition key
+        tableKeySchema.add(new KeySchemaElement().withAttributeName("MyLocation").withKeyType(KeyType.HASH));
+        // Sort key
+        tableKeySchema.add(new KeySchemaElement().withAttributeName("Date").withKeyType(KeyType.RANGE));
+
+        CreateTableRequest request = new CreateTableRequest().withTableName(TABLE_NAME)
+                .withProvisionedThroughput(
+                        new ProvisionedThroughput().withReadCapacityUnits((long) 5).withWriteCapacityUnits((long) 1))
+                .withAttributeDefinitions(attributeDefinitions).withKeySchema(tableKeySchema);
 
         try {
             CreateTableResult result = client.createTable(request);
@@ -83,16 +112,16 @@ public class DynamoClientJoinTest {
     /**
      * 
      */
-    public void postDistributionTenantData() {
-        postDistributionTenantDataSub("dist_tenant_1", "2020/01/01", "customer_1");
-        postDistributionTenantDataSub("dist_tenant_2", "2020/01/01", "customer_2");
+    public void postPrecipitationData() {
+        postPrecipitationDataSub("tokyo", "2020-01-01", "10mm");
+        postPrecipitationDataSub("osaka", "2020-03-03", "50mm");
     }
 
-    public void postDistributionTenantDataSub(String distId, String date, String customerId) {
+    public void postPrecipitationDataSub(String location, String date, String precipitation) {
         HashMap<String, AttributeValue> itemValues = new HashMap<String, AttributeValue>();
-        itemValues.put("DistTenantId", new AttributeValue(distId));
-        itemValues.put("TestDate", new AttributeValue(date));
-        itemValues.put("CustmerId", new AttributeValue(customerId));
+        itemValues.put("MyLocation", new AttributeValue(location));
+        itemValues.put("Date", new AttributeValue(date));
+        itemValues.put("Precipitation", new AttributeValue(precipitation));
 
         postData(itemValues);
     }
@@ -110,10 +139,21 @@ public class DynamoClientJoinTest {
         }
     }
 
-    @Test
-    @DisplayName("Dynamo Clientの結合テスト")
-    public void test() throws Exception {
-        System.out.println("--------- hoge");
+    void query() {
+        DynamoDB dynamoDB = new DynamoDB(client);
+        Table table = dynamoDB.getTable(TABLE_NAME);
+        // Index index = table.getIndex("PrecipIndex");
+
+        QuerySpec spec = new QuerySpec().withKeyConditionExpression("#d >= :v_date and MyLocation = :v_loc")
+                .withNameMap(new NameMap().with("#d", "Date"))
+                .withValueMap(new ValueMap().withString(":v_date", "2013-08-10").withString(":v_loc", "tokyo"));
+
+        // ItemCollection<QueryOutcome> items = index.query(spec);
+        ItemCollection<QueryOutcome> items = table.query(spec);
+        Iterator<Item> iter = items.iterator();
+        while (iter.hasNext()) {
+            System.out.println(iter.next().toJSONPretty());
+        }
     }
 
 }

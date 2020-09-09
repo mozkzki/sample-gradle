@@ -1,8 +1,10 @@
 package gradle.test.join;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -16,6 +18,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndex;
 import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndexDescription;
@@ -24,6 +27,7 @@ import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.Projection;
 import com.amazonaws.services.dynamodbv2.model.ProjectionType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
 
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class DynamoGsiTest {
-    private static final String TABLE_NAME = "WeatherData";
+    private static final String TABLE_NAME = "WeatherDataGsi";
     private static final String ENDPOINT_URL = "http://localhost:4569";
     private static final String REGION = "ap-northeast-1";
 
@@ -41,6 +45,7 @@ public class DynamoGsiTest {
     void setup() {
         createClient();
         createTable();
+        postPrecipitationData();
     }
 
     @AfterEach
@@ -52,6 +57,7 @@ public class DynamoGsiTest {
     void test() {
         desc();
         query();
+        System.out.println("hoge");
     }
 
     public void createClient() {
@@ -66,14 +72,14 @@ public class DynamoGsiTest {
         // Attribute definitions
         ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<AttributeDefinition>();
 
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Location").withAttributeType("S"));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("MyLocation").withAttributeType("S"));
         attributeDefinitions.add(new AttributeDefinition().withAttributeName("Date").withAttributeType("S"));
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Precipitation").withAttributeType("N"));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Precipitation").withAttributeType("S"));
 
         // Table key schema
         ArrayList<KeySchemaElement> tableKeySchema = new ArrayList<KeySchemaElement>();
         // Partition key
-        tableKeySchema.add(new KeySchemaElement().withAttributeName("Location").withKeyType(KeyType.HASH));
+        tableKeySchema.add(new KeySchemaElement().withAttributeName("MyLocation").withKeyType(KeyType.HASH));
         // Sort key
         tableKeySchema.add(new KeySchemaElement().withAttributeName("Date").withKeyType(KeyType.RANGE));
 
@@ -120,9 +126,9 @@ public class DynamoGsiTest {
         Table table = dynamoDB.getTable(TABLE_NAME);
         Index index = table.getIndex("PrecipIndex");
 
-        QuerySpec spec = new QuerySpec().withKeyConditionExpression("#d = :v_date and Precipitation = :v_precip")
+        QuerySpec spec = new QuerySpec().withKeyConditionExpression("#d = :v_date and Precipitation >= :v_precip")
                 .withNameMap(new NameMap().with("#d", "Date"))
-                .withValueMap(new ValueMap().withString(":v_date", "2013-08-10").withNumber(":v_precip", 0));
+                .withValueMap(new ValueMap().withString(":v_date", "2020-01-01").withString(":v_precip", "10mm"));
 
         ItemCollection<QueryOutcome> items = index.query(spec);
         Iterator<Item> iter = items.iterator();
@@ -154,4 +160,35 @@ public class DynamoGsiTest {
             }
         }
     }
+
+    /**
+     * 
+     */
+    public void postPrecipitationData() {
+        postPrecipitationDataSub("tokyo", "2020-01-01", "10mm");
+        postPrecipitationDataSub("osaka", "2020-03-03", "50mm");
+    }
+
+    public void postPrecipitationDataSub(String location, String date, String precipitation) {
+        HashMap<String, AttributeValue> itemValues = new HashMap<String, AttributeValue>();
+        itemValues.put("MyLocation", new AttributeValue(location));
+        itemValues.put("Date", new AttributeValue(date));
+        itemValues.put("Precipitation", new AttributeValue(precipitation));
+
+        postData(itemValues);
+    }
+
+    public void postData(HashMap<String, AttributeValue> itemValues) {
+        try {
+            client.putItem(TABLE_NAME, itemValues);
+        } catch (ResourceNotFoundException e) {
+            System.err.format("Error: The table \"%s\" can't be found.\n", TABLE_NAME);
+            System.err.println("Be sure that it exists and that you've typed its name correctly!");
+            System.exit(1);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
 }
