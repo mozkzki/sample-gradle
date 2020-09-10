@@ -7,6 +7,11 @@ GSI_HASH_KEY=GSIHK
 GSI_RANGE_KEY=GSIRK
 ENDPOINT=http://localhost:4569
 
+# delete table
+aws dynamodb delete-table \
+    --table-name $TABLE_NAME \
+    --endpoint-url $ENDPOINT
+
 # create table
 aws dynamodb create-table \
     --table-name $TABLE_NAME \
@@ -38,13 +43,6 @@ post_data "{\"${HASH_KEY}\": {\"S\": \"tnt|distributor_1\"}, \"$RANGE_KEY\": {\"
 # post_data "{\"${HASH_KEY}\": {\"S\": \"parts|device_aa\"}, \"$RANGE_KEY\": {\"S\": \"2020-10-10\"},\"parts_id\": {\"S\": \"part_A,part_B\"}}"
 # post_data "{\"${HASH_KEY}\": {\"S\": \"parts|device_bb\"}, \"$RANGE_KEY\": {\"S\": \"2020-11-11\"},\"parts_id\": {\"S\": \"part_C\"}}"
 
-# scan data
-echo ======== scan ========
-aws dynamodb scan \
-    --table-name $TABLE_NAME \
-    --endpoint-url $ENDPOINT \
-    | jq -r '.Items[] | [.HK.S, .RK.S, .GSIHK.S, .GSIRK.S, .customer_id.S, .device_id.S, .parts_id.S] | @csv'
-
 # query data
 echo ======== query ========
  aws dynamodb query \
@@ -55,7 +53,38 @@ echo ======== query ========
     --expression-attribute-values '{":1": {"S": "test1"}, ":2": {"S": "2018-06-05"}}' \
     --endpoint-url $ENDPOINT
             
-# delete table
-aws dynamodb delete-table \
+
+# scan data
+echo ======== scan ========
+aws dynamodb scan \
     --table-name $TABLE_NAME \
-    --endpoint-url $ENDPOINT
+    --endpoint-url $ENDPOINT \
+    | jq -r '.Items[] | [.HK.S, .RK.S, .GSIHK.S, .GSIRK.S, .customer_id.S, .device_id.S, .parts_id.S] | @csv'
+
+# update
+
+# HK, RK両方指定したupdateが可能。HKのみ,RKのみだとエラー。HK,RK以外のキーだけでもエラー。
+# GSIでのアップデートというのはできないようだ。(--index-nameオプションがない)
+# GSIのGSIHK,GSIRKでは一意性がないのでupdateがないのは当然。
+aws dynamodb update-item \
+    --table-name $TABLE_NAME \
+    --endpoint-url $ENDPOINT \
+    --key '{ "HK": {"S": "tnt|distributor_1"}, "RK": {"S": "2020-01-01"}}' \
+    --condition-expression "GSIHK = :gsihk_val" \
+    --update-expression "SET customer_id = :newval" \
+    --expression-attribute-values '{":newval":{"S":"new_customer_aaaaaa"}, ":gsihk_val":{"S":"test2"}}' \
+    # --return-values ALL_NEW
+
+    # 条件を満たさない場合はConditionalCheckFailedExceptionが発生
+
+    # --key '{ "HK": {"S": "tnt|distributor_1"}}' \
+    # --key '{ "RK": {"S": "2020-01-01"}}' \
+    # --key '{ "HK": {"S": "tnt|distributor_1"}, "RK": {"S": "2020-01-01"}}' \
+    # --key '{ "GSIHK": {"S": "test1"}, "GSIRK": {"S": "2020-05-05"}}' \
+
+# scan data
+echo ======== scan ========
+aws dynamodb scan \
+    --table-name $TABLE_NAME \
+    --endpoint-url $ENDPOINT \
+    | jq -r '.Items[] | [.HK.S, .RK.S, .GSIHK.S, .GSIRK.S, .customer_id.S, .device_id.S, .parts_id.S] | @csv'

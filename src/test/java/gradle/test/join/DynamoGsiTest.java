@@ -1,6 +1,7 @@
 package gradle.test.join;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -14,7 +15,9 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
@@ -28,6 +31,7 @@ import com.amazonaws.services.dynamodbv2.model.Projection;
 import com.amazonaws.services.dynamodbv2.model.ProjectionType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
 
 import org.junit.jupiter.api.AfterEach;
@@ -118,6 +122,60 @@ public class DynamoGsiTest {
             System.err.println("DeleteTable request failed for " + TABLE_NAME);
             System.err.println(e.getMessage());
         }
+    }
+
+    void update() {
+        // https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/JavaDocumentAPICRUDExample.html
+
+        DynamoDB dynamoDB = new DynamoDB(client);
+        Table table = dynamoDB.getTable(TABLE_NAME);
+
+        try {
+            // Specify the desired price (25.00) and also the condition (price =
+            // 20.00)
+
+            UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("Id", 120)
+                    .withReturnValues(ReturnValue.ALL_NEW).withUpdateExpression("set #p = :val1")
+                    .withConditionExpression("#p = :val2").withNameMap(new NameMap().with("#p", "Price"))
+                    .withValueMap(new ValueMap().withNumber(":val1", 25).withNumber(":val2", 20));
+
+            UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
+
+            // Check the response.
+            System.out.println("Printing item after conditional update to new attribute...");
+            System.out.println(outcome.getItem().toJSONPretty());
+
+        } catch (Exception e) {
+            System.err.println("Error updating item in " + TABLE_NAME);
+            System.err.println(e.getMessage());
+        }
+    }
+
+    void update2() {
+        // https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/GettingStarted.Java.03.html#GettingStarted.Java.03.03
+
+        DynamoDB dynamoDB = new DynamoDB(client);
+        Table table = dynamoDB.getTable(TABLE_NAME);
+
+        int year = 2015;
+        String title = "The Big New Movie";
+
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("year", year, "title", title)
+                .withUpdateExpression("set info.rating = :r, info.plot=:p, info.actors=:a")
+                .withValueMap(new ValueMap().withNumber(":r", 5.5).withString(":p", "Everything happens all at once.")
+                        .withList(":a", Arrays.asList("Larry", "Moe", "Curly")))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        try {
+            System.out.println("Updating the item...");
+            UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
+            System.out.println("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
+
+        } catch (Exception e) {
+            System.err.println("Unable to update item: " + year + " " + title);
+            System.err.println(e.getMessage());
+        }
+
     }
 
     void query() {
