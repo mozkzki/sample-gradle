@@ -60,6 +60,7 @@ public class DynamoGsiTest {
     @Test
     void test() {
         desc();
+        update();
         query();
         System.out.println("hoge");
     }
@@ -134,10 +135,11 @@ public class DynamoGsiTest {
             // Specify the desired price (25.00) and also the condition (price =
             // 20.00)
 
-            UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("Id", 120)
-                    .withReturnValues(ReturnValue.ALL_NEW).withUpdateExpression("set #p = :val1")
-                    .withConditionExpression("#p = :val2").withNameMap(new NameMap().with("#p", "Price"))
-                    .withValueMap(new ValueMap().withNumber(":val1", 25).withNumber(":val2", 20));
+            UpdateItemSpec updateItemSpec = new UpdateItemSpec()
+                    .withPrimaryKey("MyLocation", "tokyo", "Date", "2020-01-01").withReturnValues(ReturnValue.ALL_NEW)
+                    .withUpdateExpression("set #p = :val1").withConditionExpression("#p = :val2")
+                    .withNameMap(new NameMap().with("#p", "Precipitation"))
+                    .withValueMap(new ValueMap().withString(":val1", "20mm").withString(":val2", "10mm"));
 
             UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
 
