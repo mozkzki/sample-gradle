@@ -71,9 +71,13 @@ aws dynamodb update-item \
     --endpoint-url $ENDPOINT \
     --key '{ "HK": {"S": "tnt|distributor_1"}, "RK": {"S": "2020-01-01"}}' \
     --condition-expression "GSIHK = :gsihk_val" \
-    --update-expression "SET customer_id = :newval" \
-    --expression-attribute-values '{":newval":{"S":"new_customer_aaaaaa"}, ":gsihk_val":{"S":"test2"}}' \
+    --update-expression "SET customer_id = :newval, hoge = :hogeval" \
+    --expression-attribute-values '{":hogeval":{"S":"new_hogeval"}, ":newval":{"S":"new_customer_aaaaaa"}, ":gsihk_val":{"S":"test2"}}' \
     # --return-values ALL_NEW
+
+    # update-expressionで指定したものが更新される（それ以外はされない、あたりまえだ）
+
+    # 存在しない項目は追加される
 
     # 条件を満たさない場合はConditionalCheckFailedExceptionが発生
 
@@ -87,4 +91,4 @@ echo ======== scan ========
 aws dynamodb scan \
     --table-name $TABLE_NAME \
     --endpoint-url $ENDPOINT \
-    | jq -r '.Items[] | [.HK.S, .RK.S, .GSIHK.S, .GSIRK.S, .customer_id.S, .device_id.S, .parts_id.S] | @csv'
+    | jq -r '.Items[] | [.HK.S, .RK.S, .GSIHK.S, .GSIRK.S, .customer_id.S, .device_id.S, .parts_id.S, .hoge.S] | @csv'
