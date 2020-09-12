@@ -1,4 +1,4 @@
-package gradle.test.join;
+package sample.aws;
 
 import java.net.URI;
 
@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
  * https://docs.aws.amazon.com/ja_jp/sdk-for-java/v2/developer-guide/examples-sqs-message-queues.html
  */
 @ExtendWith(MockitoExtension.class)
-public class SqsClientJoinTest {
+public class SqsTest {
 
     private static final String queueName = "foo";
     private SqsClient sqsClient;

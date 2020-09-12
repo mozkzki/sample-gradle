@@ -1,7 +1,10 @@
-package gradle.test.join;
+package sample.aws;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -30,7 +33,6 @@ import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.Projection;
 import com.amazonaws.services.dynamodbv2.model.ProjectionType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
@@ -59,11 +61,22 @@ public class DynamoGsiTest {
     }
 
     @Test
-    void test() {
-        desc();
-        update();
+    void testQuery() {
         query();
-        System.out.println("hoge");
+        System.out.println("completed.");
+    }
+
+    @Test
+    void testUpdate() {
+        update();
+        // update2();
+        System.out.println("completed.");
+    }
+
+    @Test
+    void testDesc() {
+        desc();
+        System.out.println("completed.");
     }
 
     public void createClient() {
@@ -128,19 +141,20 @@ public class DynamoGsiTest {
 
     void update() {
         // https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/JavaDocumentAPICRUDExample.html
+        // https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/GettingStarted.Java.03.html#GettingStarted.Java.03.03
 
         DynamoDB dynamoDB = new DynamoDB(client);
         Table table = dynamoDB.getTable(TABLE_NAME);
 
         try {
-            // Specify the desired price (25.00) and also the condition (price =
-            // 20.00)
-
             UpdateItemSpec updateItemSpec = new UpdateItemSpec()
                     .withPrimaryKey("MyLocation", "tokyo", "Date", "2020-01-01").withReturnValues(ReturnValue.ALL_NEW)
                     .withUpdateExpression("set #p = :val1").withConditionExpression("#p = :val2")
                     .withNameMap(new NameMap().with("#p", "Precipitation"))
                     .withValueMap(new ValueMap().withString(":val1", "20mm").withString(":val2", "10mm"));
+
+            // .withValueMap(new ValueMap().withNumber(":r", 5.5).withList(":a",
+            // Arrays.asList("Larry", "Moe", "Curly")))
 
             UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
 
@@ -152,33 +166,6 @@ public class DynamoGsiTest {
             System.err.println("Error updating item in " + TABLE_NAME);
             System.err.println(e.getMessage());
         }
-    }
-
-    void update2() {
-        // https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/GettingStarted.Java.03.html#GettingStarted.Java.03.03
-
-        DynamoDB dynamoDB = new DynamoDB(client);
-        Table table = dynamoDB.getTable(TABLE_NAME);
-
-        int year = 2015;
-        String title = "The Big New Movie";
-
-        UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("year", year, "title", title)
-                .withUpdateExpression("set info.rating = :r, info.plot=:p, info.actors=:a")
-                .withValueMap(new ValueMap().withNumber(":r", 5.5).withString(":p", "Everything happens all at once.")
-                        .withList(":a", Arrays.asList("Larry", "Moe", "Curly")))
-                .withReturnValues(ReturnValue.UPDATED_NEW);
-
-        try {
-            System.out.println("Updating the item...");
-            UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
-            System.out.println("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
-
-        } catch (Exception e) {
-            System.err.println("Unable to update item: " + year + " " + title);
-            System.err.println(e.getMessage());
-        }
-
     }
 
     void query() {
@@ -193,8 +180,14 @@ public class DynamoGsiTest {
 
         ItemCollection<QueryOutcome> items = index.query(spec);
         Iterator<Item> iter = items.iterator();
+        assertNotNull(iter, "iter is null.");
+        assertTrue(iter.hasNext());
         while (iter.hasNext()) {
-            System.out.println(iter.next().toJSONPretty());
+            Item item = iter.next();
+            assertEquals("10mm", item.getString("Precipitation"));
+            assertEquals("tokyo", item.getString("MyLocation"));
+            assertEquals("2020-01-01", item.getString("Date"));
+            System.out.println(item.toJSONPretty());
         }
     }
 
@@ -222,9 +215,6 @@ public class DynamoGsiTest {
         }
     }
 
-    /**
-     * 
-     */
     public void postPrecipitationData() {
         postPrecipitationDataSub("tokyo", "2020-01-01", "10mm");
         postPrecipitationDataSub("osaka", "2020-03-03", "50mm");
