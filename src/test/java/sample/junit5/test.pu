@@ -1,0 +1,11 @@
+@startuml hoge
+Hello <|-- World
+@enduml
+
+@startuml
+A -up- A1
+A -right- A2
+A -down- A3
+A -left- A4
+@enduml
+
