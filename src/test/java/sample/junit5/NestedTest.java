@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class NestedTest {
     private int count = 8;
 
-    // このテストは実行されない
+    // このテストはstaticなので実行されない
     @Nested
     static class StaticClass {
         @Test
@@ -24,7 +24,7 @@ public class NestedTest {
         }
     }
 
-    // このテストは実行されない
+    // このテストはstaticなので実行されない
     @Nested
     static class StaticTest {
         @Test
