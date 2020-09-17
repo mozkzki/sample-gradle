@@ -40,7 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * </pre>
  */
 @ExtendWith(MockitoExtension.class)
-public class CompanyTest {
+public class MockableTest {
     @Mock
     User user1;
 
@@ -65,8 +65,11 @@ public class CompanyTest {
     @Mock
     User constructUser;
 
+    // これだけでインスタンス化される
+    // デフォルトコンストラクタ
     @InjectMocks
     Company company;
+    // Company company = new Company();
 
     /**
      * 普通のパターン.(モック可能)
