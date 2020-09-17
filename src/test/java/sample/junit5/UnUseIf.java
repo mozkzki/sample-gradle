@@ -6,33 +6,33 @@ import org.junit.jupiter.api.Test;
 
 public class UnUseIf {
 
-    private boolean getType(Article article) {
+    private static int getTypeId(Article article) {
         // 記事タイプでの比較
         if (article.getType().equals("news")) {
-            return true;
+            return 1;
         } else if (article.getType().equals("entertainment")) {
-            return false;
+            return 2;
         } else if (article.getType().equals("recipe")) {
-            return false;
+            return 3;
         } else {
-            return false;
+            throw new IllegalArgumentException("Invalid type. type: " + article);
         }
     }
 
-    private static final Map<String, Boolean> TYPE_MAP = Map.of("news", true, "entertainment", false, "recipe", false);
+    private static final Map<String, Integer> TYPE_ID_MAP = Map.of("news", 1, "entertainment", 2, "recipe", 3);
 
-    private boolean getType2(Article article) {
-        if (!TYPE_MAP.containsKey(article.getType())) {
-            throw new IllegalArgumentException("invalid value.");
+    private static int getTypeId2(Article article) {
+        if (!TYPE_ID_MAP.containsKey(article.getType())) {
+            throw new IllegalArgumentException("Invalid type. type: " + article);
         }
-        return TYPE_MAP.get(article.getType());
+        return TYPE_ID_MAP.get(article.getType());
     }
 
     @Test
     void test() {
         Article article = new Article("news");
-        System.out.println("type: " + getType(article));
-        System.out.println("type: " + getType2(article));
+        System.out.println("typeId: " + getTypeId(article));
+        System.out.println("typeId: " + getTypeId2(article));
     }
 
 }
