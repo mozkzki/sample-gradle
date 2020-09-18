@@ -3,7 +3,7 @@ package sample.mockito;
 public class SimplePerson {
 
     public SimplePerson(SimpleHome home) {
-        System.out.println(home.getAddress());
+        System.out.println("address: " + home.getAddress());
         // homeはメンバーとして保持しない
     }
 

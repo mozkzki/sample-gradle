@@ -14,10 +14,7 @@ public class SimplePersonHasSetter {
 
     public void setHome(SimpleHome home) {
         this.home = home;
+        System.out.println("Result of getAddress: " + this.home.getAddress());
     }
 
-    public String getAddress() {
-        System.out.println(home.getAddress());
-        return home.getAddress();
-    }
 }
