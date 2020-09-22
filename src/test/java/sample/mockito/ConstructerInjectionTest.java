@@ -21,7 +21,7 @@ public class ConstructerInjectionTest {
 
     @BeforeEach
     void setup() {
-        when(home.getAddress()).thenReturn("oosaka");
+        when(home.getAddress()).thenReturn("osaka");
     }
 
     // コンストラクタインジェクション → される
@@ -32,10 +32,10 @@ public class ConstructerInjectionTest {
     // homeのコンストラクタは本物が呼ばれるわけではないので注意(mockなので)
     @Test
     void test() {
-        assertEquals("oosaka", cut.getAddress(home));
+        assertEquals("osaka", cut.getAddress(home));
         // このテストの出力は下記となる
         // > null
-        // > oosaka
+        // > osaka
         // cutのコンストラクタ中ではhomeのmockはまだ機能しないようだ
     }
 

@@ -10,27 +10,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+// コンストラクタインジェクションの例
 @ExtendWith(MockitoExtension.class)
-public class FieldInjectionTest {
+public class NormalMockTest {
     @InjectMocks
-    SimplePersonHasField cut;
+    NormalPerson cut;
 
     @Mock
-    SimpleHome home;
+    NormalHome home;
 
     @BeforeEach
     void setup() {
         when(home.getAddress()).thenReturn("osaka");
     }
 
-    // フィールドインジェクション → される
-    // cutのコンストラクタでhomeをsetする/しないに関わらず
-    // テスト対象メソッドではhomeのmockが利用可能。
-    // また、mockのメンバーへのset関数がある/なしに関わらずmock可能。
-    // ただし、cutがデフォルトコンストラクタを持っていないと
-    // テスト時にエラーとなる。
+    // 通常パターンではコンストラクタインジェクションになる
+    // →テスト対象クラスにデフォルトコンストラクタは必須ではない
+    //
+    // cutのコンストラクタ中ではhomeのmockはまだ機能しない
+    // コンストラクタ以外のメソッド中ではhomeのmockを使用できる
     @Test
     void test() {
         assertEquals("osaka", cut.getAddress());
     }
+
 }

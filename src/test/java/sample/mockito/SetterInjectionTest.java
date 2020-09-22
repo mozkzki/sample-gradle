@@ -19,7 +19,7 @@ public class SetterInjectionTest {
 
     @BeforeEach
     void setup() {
-        when(home.getAddress()).thenReturn("oosaka");
+        when(home.getAddress()).thenReturn("osaka");
     }
 
     // セッターインジェクション → される
