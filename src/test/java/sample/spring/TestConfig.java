@@ -11,8 +11,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 
-@Configuration
-@ComponentScan("gradle.test.spring")
+// @Configuration
+// @ComponentScan("gradle.test.spring")
 public class TestConfig {
 
     @Bean

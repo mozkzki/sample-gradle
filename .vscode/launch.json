@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - App",
+            "request": "launch",
+            "mainClass": "sample.spring.App",
+            "projectName": "gradle-test"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - CsvToJson",
             "request": "launch",
             "mainClass": "sample.etc.CsvToJson",
