@@ -20,8 +20,8 @@ public class EmployeeServiceTest {
     @DisplayName("IDで検索する")
     void testFindById() {
         Employee employee = service.findById(1);
-        assertAll("employee", () -> assertEquals("Yutaka", employee.getFirstName()),
-                () -> assertEquals("Kato", employee.getLastName()));
+        assertAll("employee", () -> assertEquals("Taro", employee.getFirstName()),
+                () -> assertEquals("Hoge", employee.getLastName()));
     }
 
     @Nested

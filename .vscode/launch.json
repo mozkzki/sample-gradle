@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Try",
+            "request": "launch",
+            "mainClass": "sample.etc.Try",
+            "projectName": "gradle-test"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - App",
+            "request": "launch",
+            "mainClass": "sample.spring.App",
+            "projectName": "gradle-test"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - CsvToJson",
+            "request": "launch",
+            "mainClass": "sample.etc.CsvToJson",
+            "projectName": "gradle-test"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"
