@@ -6,25 +6,23 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring コンストラクタインジェクション.
+ * Spring フィールドインジェクション. (prototype)
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SpringPersonHasConstructor {
-    private final SpringDog dog;
+public class SpringPersonPrototype {
+    // このSpringDogはDIコンテナによって挿入される
+    @Autowired
+    private SpringDog dog;
 
     /**
      * コンストラクタ.
-     * 
-     * このSpringDogはDIコンテナによって注入される。 呼び出し元はテストクラスを参照。
      */
-    @Autowired
-    public SpringPersonHasConstructor(SpringDog dog) {
-        this.dog = dog;
+    public SpringPersonPrototype() {
     }
 
     public String getGreeting() {
-        return "I have " + this.dog.getName();
+        return "HashCode: " + this.hashCode() + ", I have " + this.dog.getName();
     }
 
 }

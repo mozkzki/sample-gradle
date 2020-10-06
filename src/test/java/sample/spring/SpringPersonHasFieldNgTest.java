@@ -10,12 +10,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
  * SpringPersonHasFieldを生成すると、メンバー(SpringDog)がDIコンテナにより挿入される。
  */
 @SpringJUnitConfig(classes = AppConfig.class) // 忘れやすいので注意
-public class SpringPersonHasFieldTest {
+public class SpringPersonHasFieldNgTest {
     @Autowired
-    private SpringPersonHasField cut;
+    private SpringPersonHasFieldNg cut;
 
     /**
-     * Autowiredで生成。メンバー(SpringDog)はDIコンテナが注入してくれる。
+     * Autowiredで生成。メンバー(SpringDog)はDIコンテナが注入してくれるはずだが、 cut(person)自体の生成に失敗する。
+     * 理由はgetBeanの場合と同じ。
      */
     @Test
     void test1() {
@@ -23,12 +24,14 @@ public class SpringPersonHasFieldTest {
     }
 
     /**
-     * getBeanで生成する。メンバー(SpringDog)はDIコンテナが注入してくれる。
+     * getBeanで生成する。メンバー(SpringDog)はDIコンテナが注入してくれるはずだが、 getBeanでのperson自体の生成に失敗する。
+     * テスト対象クラスが、primitive型の引数付きコンストラクタしか持っていない場合、
+     * (コンテナにコンストラクタインジェクションで注入すべきオブジェクトが見つからない場合) 生成に失敗する。
      */
     @Test
     void test2() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-            SpringPersonHasField person = context.getBean(SpringPersonHasField.class);
+            SpringPersonHasFieldNg person = context.getBean(SpringPersonHasFieldNg.class);
             System.out.println(person.getGreeting());
         }
     }
@@ -38,7 +41,7 @@ public class SpringPersonHasFieldTest {
      */
     @Test
     void test3() {
-        SpringPersonHasField person = new SpringPersonHasField();
+        SpringPersonHasFieldNg person = new SpringPersonHasFieldNg("test");
         System.out.println(person.getGreeting());
     }
 }
