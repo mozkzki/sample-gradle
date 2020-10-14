@@ -7,6 +7,7 @@ public class Try {
         System.out.println(i.toString());
     }
 
+    @SuppressWarnings("null")
     public StringBuffer tryCatch() {
         System.out.println("スタート！");
         StringBuffer str = null;// nullにする
