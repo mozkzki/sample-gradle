@@ -3,32 +3,35 @@ package sample.spring;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 /**
  * SpringPersonHasConstructorは、自身のメンバー(SpringDog)をコンストラクターインジェクションしているクラス。
  * SpringPersonHasConstructorを生成すると、メンバー(SpringDog)がDIコンテナにより挿入される。
  */
+@SpringJUnitConfig(classes = AppConfig.class) // 忘れやすいので注意
 public class SpringPersonHasConstructorTest {
     @Autowired
-    private SpringPersonHasConstructor person;
+    private SpringPersonHasConstructor cut;
 
     /**
-     * Autowiredで生成。 これは失敗する。personは引数付きコンストラクタしか無いので Autowiredでは生成出来ないようだ。
+     * Autowiredで生成。コンストラクタに渡すSpringDogはDIコンテナが注入してくれる。
      */
     @Test
     void test1() {
-        System.out.println(person.getGreeting());
+        System.out.println(cut.getGreeting());
 
     }
 
     /**
-     * getBeanで生成する。これは成功する。コンストラクタに渡すSpringDogはDIコンテナが勝手に用意してくれる。
+     * getBeanで生成する。コンストラクタに渡すSpringDogはDIコンテナが注入してくれる。
      */
     @Test
     void test2() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-            SpringPersonHasConstructor person2 = context.getBean(SpringPersonHasConstructor.class);
-            System.out.println(person2.getGreeting());
+            // コンストラクタインジェクションなら、getBeanで引数(SpringDog)を渡す必要はない
+            SpringPersonHasConstructor person = context.getBean(SpringPersonHasConstructor.class);
+            System.out.println(person.getGreeting());
         }
     }
 

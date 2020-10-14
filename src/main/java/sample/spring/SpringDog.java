@@ -14,7 +14,7 @@ public class SpringDog {
     }
 
     public String getName() {
-        return this.name;
+        return this.name + "(" + this.hashCode() + ")";
     }
 
 }
