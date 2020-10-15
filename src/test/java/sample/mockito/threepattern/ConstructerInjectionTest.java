@@ -1,4 +1,4 @@
-package sample.mockito;
+package sample.mockito.threepattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -9,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import sample.mockito.SimpleHome;
+import sample.mockito.SimplePerson;
 
 // コンストラクタインジェクションの例
 @ExtendWith(MockitoExtension.class)

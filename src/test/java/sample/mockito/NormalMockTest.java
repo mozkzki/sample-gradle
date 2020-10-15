@@ -20,7 +20,7 @@ public class NormalMockTest {
     NormalHome home;
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         when(home.getAddress()).thenReturn("osaka");
     }
 
@@ -30,7 +30,7 @@ public class NormalMockTest {
     // cutのコンストラクタ中ではhomeのmockはまだ機能しない
     // コンストラクタ以外のメソッド中ではhomeのmockを使用できる
     @Test
-    void test() {
+    public void test() {
         assertEquals("osaka", cut.getAddress());
     }
 
