@@ -4,15 +4,13 @@ import java.util.function.Consumer;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.backoff.BackOffExecution;
 import org.springframework.util.backoff.ExponentialBackOff;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class RetryUtil<T, E extends Exception> {
-    private Class<E> retryTargetException;
+public class RetryUtil<T> {
 
     private static final long BACKOFF_INITIAL_INTERVAL = 500;
     private static final double BACKOFF_MULTIPLIER = 1.5;
@@ -43,8 +41,8 @@ public class RetryUtil<T, E extends Exception> {
                 targetMethod.accept(arg);
             } catch (Exception e) {
                 // 対象のExceptionの場合のみリトライする (catch句でジェネリクスが使用不可)
-                if (isRetryTargetException(e)) {
-
+                if (!isRetryTargetException(e)) {
+                    // dummy
                 }
                 System.out.println("Func failed. Retry start.... Count: " + (count + 1));
                 System.out.println(e.getMessage());
@@ -55,15 +53,8 @@ public class RetryUtil<T, E extends Exception> {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void isRetryTargetException(E e, Exception target) {
-    this.retryTargetException = (Class<E>) GenericTypeResolver
-                .resolveTypeArgument(getClass(), RetryUtil.class);
-    }if(target.getClass().isInstance(test))
-
-    {
-
+    private boolean isRetryTargetException(Exception e) {
+        return true;
     }
 
-    target.getClass().isInstance(retryTargetException);
-}}
+}
