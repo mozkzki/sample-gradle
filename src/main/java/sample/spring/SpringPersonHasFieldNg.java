@@ -34,7 +34,7 @@ public class SpringPersonHasFieldNg {
     // }
 
     public String getGreeting() {
-        return "I am " + name + ". I have " + this.dog.getName();
+        return "I am " + name + ". I have dog. " + this.dog;
     }
 
 }

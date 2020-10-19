@@ -22,7 +22,7 @@ public class SpringPersonSingleton {
     }
 
     public String getGreeting() {
-        return "HashCode: " + this.hashCode() + ", I have " + this.dog.getName();
+        return "HashCode: " + this.hashCode() + ", I have dog. " + this.dog;
     }
 
 }

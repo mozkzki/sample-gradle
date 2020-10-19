@@ -22,7 +22,7 @@ public class SpringPersonHasField {
     }
 
     public String getGreeting() {
-        return "I have " + this.dog.getName();
+        return "I have dog. " + this.dog;
     }
 
 }

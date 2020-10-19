@@ -24,7 +24,7 @@ public class SpringPersonHasConstructor {
     }
 
     public String getGreeting() {
-        return "I have " + this.dog.getName();
+        return "I have dog. " + this.dog;
     }
 
 }
