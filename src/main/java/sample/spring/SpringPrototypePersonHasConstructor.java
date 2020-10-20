@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class SpringSingletonPersonHasConstructor implements InitializingBean {
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class SpringPrototypePersonHasConstructor implements InitializingBean {
     private SpringDog dog; // @Autowiredしない
 
     @Value("${sample.name:foo}")
@@ -29,17 +29,17 @@ public class SpringSingletonPersonHasConstructor implements InitializingBean {
     // なので、使用したいコンストラクタに@Autowiredをつけたほうが良い
     //
     @Autowired
-    public SpringSingletonPersonHasConstructor(SpringDog dog) {
+    public SpringPrototypePersonHasConstructor(SpringDog dog) {
         this.name = null;
         this.dog = dog;
-        System.out.println(this + "[singleton has const][constructer]");
+        System.out.println(this + "[prototype][constructer]");
     }
 
-    public SpringSingletonPersonHasConstructor() {
+    public SpringPrototypePersonHasConstructor() {
         // @Autowiredをつけたコンストラクタが呼ばれるので、こっちは呼ばれない
     }
 
-    public SpringSingletonPersonHasConstructor(SpringDog dog, int test) {
+    public SpringPrototypePersonHasConstructor(SpringDog dog, int test) {
         // @Autowiredをつけたコンストラクタが呼ばれるので、こっちは呼ばれない
     }
 
@@ -47,11 +47,11 @@ public class SpringSingletonPersonHasConstructor implements InitializingBean {
     // コンストラクタ内ではnullなので注意。
     // dogはコンストラクタ内で注入される。
     public void afterPropertiesSet() {
-        System.out.println(this + "[singleton has const][afterprop]");
+        System.out.println(this + "[prototype][afterprop]");
     }
 
     public String getGreeting() {
-        System.out.println(this + "[singleton has const][getgreeting]");
+        System.out.println(this + "[prototype][getgreet]");
         return "My name is " + this.name + ". I have dog. " + this.dog;
     }
 
@@ -59,4 +59,5 @@ public class SpringSingletonPersonHasConstructor implements InitializingBean {
     public String toString() {
         return "[Person: " + this.name + "(hash=" + this.hashCode() + ")] " + this.dog;
     }
+
 }

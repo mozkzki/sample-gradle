@@ -43,25 +43,29 @@ public class SpringSingletonPerson implements InitializingBean {
     // → SpringSingletonPersonHasConstructor 参照
     public SpringSingletonPerson() {
         this.name = null;
-        System.out.println("[singleton][default constructer] name=" + this.name + ", dog=" + this.dog);
+        System.out.println(this + " [singleton][default constructer]");
     }
 
     // SCOPE_SINGLETONの場合、下記のコンストラクタ「のみ」しか定義されていないと
     // DIコンテナ初期化時にエラーになる。
     public SpringSingletonPerson(String name) {
         this.name = name;
-        System.out.println("[singleton][constructer] name=" + this.name + ", dog=" + this.dog);
+        System.out.println(this + "[singleton][constructer]");
     }
 
     // nameとdogは、afterPropertiesSet内ではDIコンテナによりセット済み。
     // コンストラクタ内ではnullなので注意。
     public void afterPropertiesSet() {
-        System.out.println("[singleton][afterprop] name=" + this.name + ", dog=" + this.dog);
+        System.out.println(this + "[singleton][afterprop]");
     }
 
     public String getGreeting() {
-        System.out.println("[singleton][getgreeting] name=" + this.name + ", dog=" + this.dog);
+        System.out.println(this + "[singleton][getgreeting]");
         return "My name is " + this.name + ". I have dog. " + this.dog;
     }
 
+    @Override
+    public String toString() {
+        return "[Person: " + this.name + "(hash=" + this.hashCode() + ")] " + this.dog;
+    }
 }

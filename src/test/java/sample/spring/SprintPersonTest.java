@@ -8,39 +8,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 public class SprintPersonTest {
 
-    @SpringJUnitConfig(classes = AppConfig.class)
-    @Nested
-    class GetBeanTest {
-        @Autowired
-        ApplicationContext ctx;
-
-        @Test
-        void testGetGreeting() {
-            // 引数付きコンストラクタしかないのでgetBean
-            SpringPrototypePerson person = ctx.getBean(SpringPrototypePerson.class, "aaaaaaa");
-            System.out.println(person.getGreeting());
-            SpringDog dog = ctx.getBean(SpringDog.class);
-            System.out.println("dog=" + dog);
-        }
-    }
-
-    @SpringJUnitConfig(classes = AppConfig.class)
-    @Nested
-    class AutowiredTest {
-        // 引数付きコンストラクタしかないので@Autowiredが使えない
-        @Autowired
-        SpringPrototypePerson person;
-
-        @Test
-        void testGetGreeting() {
-
-            // 引数付きコンストラクタしかないのでgetBean
-            // SpringPrototypePerson person = ctx.getBean(SpringPrototypePerson.class,
-            // "aaaaaaa");
-            System.out.println(person.getGreeting());
-        }
-    }
-
     @SpringJUnitConfig(classes = AppConfig.class) // 必須, @Nestedごとに付与が必要
     @Nested
     class AutowiredSingletonBeanTest {
@@ -58,6 +25,28 @@ public class SprintPersonTest {
             person.getGreeting();
             personHasConst.getGreeting();
             System.out.println(">>>>>>> end");
+        }
+
+        @SpringJUnitConfig(classes = AppConfig.class) // 必須, @Nestedごとに付与が必要
+        @Nested
+        class AnotherAutowiredSingletonBeanTest {
+            // DIコンテナで生成されたBEANが注入される
+            // AutowiredSingletonBeanTestで使ったものと同じインスタンス
+            @Autowired
+            SpringSingletonPerson person;
+
+            // DIコンテナで生成されたBEANが注入される
+            // AutowiredSingletonBeanTestで使ったものと同じインスタンス
+            @Autowired
+            SpringSingletonPersonHasConstructor personHasConst;
+
+            @Test
+            void testGetGreeting() {
+                System.out.println(">>>>>>> start");
+                person.getGreeting();
+                personHasConst.getGreeting();
+                System.out.println(">>>>>>> end");
+            }
         }
     }
 
@@ -105,4 +94,92 @@ public class SprintPersonTest {
         }
     }
 
+    // このテストクラスのみを実行しただけで、singletonのBEANの
+    // コンストラクタが呼ばれる。singletonのBEANは
+    // DIコンテナによってstaticに用意されるようだ。
+    // prototypeのBEANは@Autowiredしたテストクラスでのみ生成される。
+    @SpringJUnitConfig(classes = AppConfig.class) // 必須, @Nestedごとに付与が必要
+    @Nested
+    class AutowiredPrototypeBeanTest {
+        // DIコンテナで生成されたBEANが注入される
+        @Autowired
+        SpringPrototypePerson person;
+
+        // DIコンテナで生成されたBEANが注入される
+        @Autowired
+        SpringPrototypePersonHasConstructor personHasConst;
+
+        @Test
+        void testGetGreeting() {
+            System.out.println(">>>>>>> start");
+            person.getGreeting();
+            personHasConst.getGreeting();
+            System.out.println(">>>>>>> end");
+        }
+
+        @SpringJUnitConfig(classes = AppConfig.class) // 必須, @Nestedごとに付与が必要
+        @Nested
+        class AnotherAutowiredPrototypeBeanTest {
+            // DIコンテナで生成されたBEANが注入される
+            // AutowiredPrototypeBeanTestで使われたものとは別のインスタンス
+            // @Autowiredを書くごとに生成される
+            @Autowired
+            SpringPrototypePerson person;
+
+            // DIコンテナで生成されたBEANが注入される
+            // AutowiredPrototypeBeanTestで使われたものとは別のインスタンス
+            // @Autowiredを書くごとに生成される
+            @Autowired
+            SpringPrototypePersonHasConstructor personHasConst;
+
+            @Test
+            void testGetGreeting() {
+                System.out.println(">>>>>>> start");
+                person.getGreeting();
+                personHasConst.getGreeting();
+                System.out.println(">>>>>>> end");
+            }
+        }
+    }
+
+    @SpringJUnitConfig(classes = AppConfig.class)
+    @Nested
+    class GetPrototypeBeanTest {
+        @Autowired
+        ApplicationContext ctx;
+
+        // prototypeのBEANは、DIコンテナ起動時ではなくgetBean呼び出し時に生成される。
+        @Test
+        void testGetGreeting() {
+            System.out.println(">>>>>>> start");
+
+            // ここでコンストラクタが呼ばれる
+            SpringPrototypePerson prototypePerson = ctx.getBean(SpringPrototypePerson.class);
+            prototypePerson.getGreeting();
+
+            // ここでコンストラクタが呼ばれる
+            SpringPrototypePersonHasConstructor prototypePersonHasConst = ctx
+                    .getBean(SpringPrototypePersonHasConstructor.class);
+            prototypePersonHasConst.getGreeting();
+
+            System.out.println(">>>>>>> end");
+        }
+
+        // prototypeのBEANは、DIコンテナ起動時ではなくgetBean呼び出し時に生成される。
+        @Test
+        void testGetBeanWithParam() {
+            System.out.println(">>>>>>> start");
+
+            // ここでコンストラクタが呼ばれる
+            SpringPrototypePerson prototypePerson = ctx.getBean(SpringPrototypePerson.class, "hoge");
+            prototypePerson.getGreeting();
+
+            // ここでコンストラクタが呼ばれる
+            SpringPrototypePersonHasConstructor prototypePersonHasConst = ctx
+                    .getBean(SpringPrototypePersonHasConstructor.class, "hoge");
+            prototypePersonHasConst.getGreeting();
+
+            System.out.println(">>>>>>> end");
+        }
+    }
 }

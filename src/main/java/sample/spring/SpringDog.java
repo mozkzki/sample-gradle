@@ -17,7 +17,7 @@ public class SpringDog {
 
     @Override
     public String toString() {
-        return "name:" + this.name + ", hash:" + this.hashCode();
+        return "[Dog: " + this.name + "(hash=" + this.hashCode() + ")] ";
     }
 
 }
