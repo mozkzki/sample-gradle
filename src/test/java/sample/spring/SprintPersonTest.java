@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 public class SprintPersonTest {
-
     @SpringJUnitConfig(classes = AppConfig.class) // 必須, @Nestedごとに付与が必要
     @Nested
     class AutowiredSingletonBeanTest {

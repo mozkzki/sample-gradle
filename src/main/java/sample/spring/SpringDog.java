@@ -20,4 +20,8 @@ public class SpringDog {
         return "[Dog: " + this.name + "(hash=" + this.hashCode() + ")] ";
     }
 
+    public static String getBar() {
+        return "bar";
+    }
+
 }
